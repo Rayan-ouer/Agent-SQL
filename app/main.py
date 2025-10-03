@@ -32,7 +32,7 @@ app = initializeModel()
 async def callBot(question: Question, response: Response):
     final_message = None
     events = app.state.agent_executor.stream(
-    {"messages": [("user", question)]},
+    {"messages": [("user", question.model_dump())]},
     stream_mode="values",
     )
     for event in events:
