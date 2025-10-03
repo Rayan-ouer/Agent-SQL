@@ -1,0 +1,9 @@
+services:
+  web:
+    build: .
+    env_file:
+      - .env
+    ports:
+     - "8010:80"
+    volumes:
+     - .:/app

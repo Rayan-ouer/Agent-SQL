@@ -1,0 +1,8 @@
+uvicorn[standard]
+fastapi[standard]
+sqlalchemy==1.4.48
+pymysql==1.0.2
+python-dotenv
+langchain-community
+langchainhub
+langgraph
