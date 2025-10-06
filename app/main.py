@@ -44,3 +44,32 @@ async def callBot(question: Question, response: Response):
         "status": "success",
         "response": str(final_message.content)
     }
+
+
+
+#RECURSION_LIMIT = 7  # ou toute autre limite adaptée
+####
+#@app.post("/predict", status_code=200)
+#async def callBot(question: Question, response: Response):
+#    final_message = None
+#    try:
+#        events = app.state.agent_executor.stream(
+#            {"messages": [("user", question.question)]},
+#            {"recursion_limit": RECURSION_LIMIT},
+#            stream_mode="values",
+#        )
+#        for event in events:
+#            messages = event.get("messages", [])
+#            if messages:
+#                final_message = messages[-1]
+#                print("tokens_used", final_message.additional_kwargs.get("token_count", None))
+#        return {
+#            "status": "success",
+#            "response": str(final_message.content)
+#        }
+#    except GraphRecursionError:
+#        return {
+#            "status": "error",
+#            "response": "Agent stoppé : nombre maximal d'itérations atteint."
+#        }
+###
