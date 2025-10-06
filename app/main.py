@@ -2,6 +2,7 @@ import logging
 from app.agent import create_agent_az
 from app.model import Question
 from fastapi import FastAPI, HTTPException, Response, status
+from langgraph.errors import GraphRecursionError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,48 +29,28 @@ def initializeModel():
 
 app = initializeModel()
 
+RECURSION_LIMIT = (3 * 5 + 1)
+
 @app.post("/predict", status_code=200)
 async def callBot(question: Question, response: Response):
     final_message = None
-    events = app.state.agent_executor.stream(
-    {"messages": [("user", question.question)]},
-    stream_mode="values",
-    )
-    for event in events:
-        messages = event.get("messages", [])
-        if messages:
-            final_message = messages[-1]
-    print("tokens_used", final_message.additional_kwargs.get("token_count", None))
-    return {
-        "status": "success",
-        "response": str(final_message.content)
-    }
-
-
-
-#RECURSION_LIMIT = 7  # ou toute autre limite adaptée
-####
-#@app.post("/predict", status_code=200)
-#async def callBot(question: Question, response: Response):
-#    final_message = None
-#    try:
-#        events = app.state.agent_executor.stream(
-#            {"messages": [("user", question.question)]},
-#            {"recursion_limit": RECURSION_LIMIT},
-#            stream_mode="values",
-#        )
-#        for event in events:
-#            messages = event.get("messages", [])
-#            if messages:
-#                final_message = messages[-1]
-#                print("tokens_used", final_message.additional_kwargs.get("token_count", None))
-#        return {
-#            "status": "success",
-#            "response": str(final_message.content)
-#        }
-#    except GraphRecursionError:
-#        return {
-#            "status": "error",
-#            "response": "Agent stoppé : nombre maximal d'itérations atteint."
-#        }
-###
+    try:
+        events = app.state.agent_executor.stream(
+            {"messages": [("user", question.question)]},
+            {"recursion_limit": RECURSION_LIMIT},
+            stream_mode="values",
+        )
+        for event in events:
+            messages = event.get("messages", [])
+            if messages:
+                final_message = messages[-1]
+            print(final_message)
+        return {
+            "status": "success",
+            "response": str(final_message.content)
+        }
+    except GraphRecursionError:
+        return {
+            "status": "error",
+            "response": "Agent stoppé : nombre maximal d'itérations atteint."
+        }
